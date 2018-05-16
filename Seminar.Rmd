@@ -1,0 +1,122 @@
+---
+title: "Seminar"
+author: "Riley Ashton"
+date: '2018-05-16'
+output: ioslides_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tibble)
+library(ggplot2); theme_set(theme_minimal())
+library(dplyr)
+library(knitr)
+library(purrr)
+```
+
+
+## Regression Analysis
+- A set of statistical processes for estimating relationships amoung variables
+- Example: how income is related to race, education, geographic location, etc
+- Example: how unemployment in related to economic growth (Okun's law) 
+- Example: how force needed to compress a spring is related to distance (Hooke's law)
+
+
+## Simple Linear Regression Intuition
+Use a line to determine the relationship between a single covariate/predictor
+and a single response. Out of all possible lines, the best choice is the line 
+that minimizes the distance between observations and itself.
+
+## Simple Linear Regression Example
+```{r simple_regression}
+inputPanel(
+  sliderInput("sd_slider", label = "Standard Deviation",
+              min = 0, max = 10, value = 0, step = 0.5
+  ),
+  sliderInput("intercept_slider", label = "Fitted Line Intercept",
+              min = -5, max = 5, value = 0, step = 0.5
+  ),
+  sliderInput("slope_slider", label = "Fitted Line Slope",
+              min = -5, max = 5, value = 0, step = 0.5
+  )
+)
+renderPlot({
+  n <- 5
+  tibble(covariate = rep(seq_len(n), 2), 
+         response = c(seq_len(n) + rnorm(n, sd = input$sd_slider), 
+                      seq_len(n) * input$slope_slider + input$intercept_slider),
+         line_group = as.factor(rep(seq_len(n), 2)),
+         Group = as.factor(c(rep("Values",5), rep("Fitted",5)))
+         ) %>%
+  ggplot(., aes(x = covariate, y = response, group = line_group, colour = Group)) +
+    geom_point() + geom_line(colour = "grey30") +
+    geom_abline(slope = input$slope_slider, intercept = input$intercept_slider)
+})
+```
+
+
+## Common Notions of Distance
+Let $y_i$ denote the observed value at observation $i$
+
+Let $\hat{y_i}$ denote the fitted value at observation $i$
+
+Then our notion of distance can be defined by:
+
+- Squared Error $\sum_{i = 1}^n (y_i - \hat{y_i})^2$
+- Absolute Error $\sum_{i = 1}^n |y_i - \hat{y_i}|$
+- Or anything else we choose!
+
+Absolute error is more in line with our notion of error,
+but squared error has 
+[nicer mathematical properties](https://www.benkuhn.net/squared),
+including the ability to solve its minimization in closed form.
+
+
+##
+```{r}
+model1 <- function(betas, data) {
+  betas[1] + data$x * betas[2]
+}
+
+l_norm <- function(betas, data, degree, f) {
+  diff <- abs(data$y - model1(betas, data))
+  (f(diff ^ degree )) ^ (1/degree)
+}
+
+sim_data <- tibble(x = 1:100, y = 1:100 + rnorm(100, 0, 50))
+tr_mean_5 <- partial(mean, trim = 0.05)
+tr_mean_10 <- partial(mean, trim = 0.1)
+
+lookup <- c("mean" = mean, "median" = median, "trmean_5" = tr_mean_5,
+            "trmean_10" = tr_mean_10)
+radios <- c("mean", "median", "trmean_5","trmean_10")
+```
+
+```{r}
+inputPanel(
+  numericInput("line1_degree", label = "Blue Line Degree", value = 1),
+  
+  selectInput("line1_f", label = "Blue Line Function",
+               choices = radios),
+  
+  numericInput("line2_degree", label = "Orange Line Degree", value = 2),
+  
+  selectInput("line2_f", label = "Orange Line Function",
+               choices = radios)
+)
+
+renderPlot({
+  
+  optimize()
+  ggplot(sim_data, aes(x = x, y = y))
+})
+```
+
+## R Output
+
+```{r cars}
+summary(cars)
+```
+
+
