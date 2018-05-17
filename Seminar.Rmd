@@ -1,5 +1,5 @@
 ---
-title: "Seminar"
+title: "Genome Wide Association Study Seminar"
 author: "Riley Ashton"
 date: '2018-05-16'
 output: ioslides_presentation
@@ -14,7 +14,8 @@ library(dplyr)
 library(knitr)
 library(purrr)
 ```
-
+## Genome Wide Association Studies
+How are SNPs and cofounding factors related to traits like diseases, blood pressure, etc.
 
 ## Regression Analysis
 - A set of statistical processes for estimating relationships amoung variables
@@ -47,11 +48,12 @@ renderPlot({
          response = c(seq_len(n) + rnorm(n, sd = input$sd_slider), 
                       seq_len(n) * input$slope_slider + input$intercept_slider),
          line_group = as.factor(rep(seq_len(n), 2)),
-         Group = as.factor(c(rep("Values",5), rep("Fitted",5)))
+         Group = as.factor(c(rep("Observed",5), rep("Fitted",5)))
          ) %>%
   ggplot(., aes(x = covariate, y = response, group = line_group, colour = Group)) +
-    geom_point() + geom_line(colour = "grey30") +
-    geom_abline(slope = input$slope_slider, intercept = input$intercept_slider)
+    geom_line(colour = "grey30") +
+    geom_abline(slope = input$slope_slider, intercept = input$intercept_slider) +
+    geom_point(size = 5)
 })
 ```
 
@@ -75,48 +77,114 @@ including the ability to solve its minimization in closed form.
 
 ##
 ```{r}
-model1 <- function(betas, data) {
+linear_model <- function(betas, data) {
   betas[1] + data$x * betas[2]
 }
 
-l_norm <- function(betas, data, degree, f) {
-  diff <- abs(data$y - model1(betas, data))
-  (f(diff ^ degree )) ^ (1/degree)
+l_norm <- function(betas, data, degree, trim) {
+  diff <- abs(data$y - linear_model(betas, data))
+  (mean(diff ^ degree, trim = trim)) ^ (1/degree)
 }
 
-sim_data <- tibble(x = 1:100, y = 1:100 + rnorm(100, 0, 50))
-tr_mean_5 <- partial(mean, trim = 0.05)
-tr_mean_10 <- partial(mean, trim = 0.1)
-
-lookup <- c("mean" = mean, "median" = median, "trmean_5" = tr_mean_5,
-            "trmean_10" = tr_mean_10)
-radios <- c("mean", "median", "trmean_5","trmean_10")
+sim_data <- tibble(x = 1:100, y = 1:100 + rt(100, 1))
 ```
+
 
 ```{r}
 inputPanel(
-  numericInput("line1_degree", label = "Blue Line Degree", value = 1),
+  numericInput("blue_degree", label = "Blue Line Degree", value = 1),
   
-  selectInput("line1_f", label = "Blue Line Function",
-               choices = radios),
+  sliderInput("blue_mean_trim", label = "Blue Line Mean Trim",
+               min = 0, max = 0.5, value = 0, step = 0.01),
   
-  numericInput("line2_degree", label = "Orange Line Degree", value = 2),
+  numericInput("orange_degree", label = "Orange Line Degree", value = 2),
   
-  selectInput("line2_f", label = "Orange Line Function",
-               choices = radios)
+  sliderInput("orange_mean_trim", label = "Orange Line Mean Trim",
+               min = 0, max = 0.5, value = 0, step = 0.01)
 )
-
 renderPlot({
+  blue_lnorm <- partial(l_norm, data = sim_data, 
+                        degree = input$blue_degree,
+                        trim = input$blue_mean_trim)
+  orange_lnorm <- partial(l_norm, data = sim_data,
+                        degree = input$orange_degree,
+                        trim = input$orange_mean_trim)
+  blue_betas <- optim(c(0,0), blue_lnorm)$"par"
+  orange_betas <- optim(c(0,0), orange_lnorm)$"par"
   
-  optimize()
-  ggplot(sim_data, aes(x = x, y = y))
+  ggplot(data = sim_data, aes(x = x, y = y)) +
+    geom_point() +
+    geom_abline(slope = blue_betas[2], intercept = blue_betas[1],
+                colour = "blue") +
+    geom_abline(slope = orange_betas[2], intercept = orange_betas[1],
+                colour = "orange")
 })
 ```
 
-## R Output
 
-```{r cars}
-summary(cars)
-```
+## Multivariable Model (1/2)
+We allow multiple covariates/predictors and the model becomes
+
+$$Y = X \beta$$
+Where:
+
+- $Y$ is a vector of length $n \times 1$,
+- $X$ is a matrix of size $n \times (p+1)$
+- $\beta$ is a vector of length $(p+1)$
+- $n$ is the number of observations
+- $p$ is the number of predictors
+
+## Multivariable Model (2/2)
+We still only focus on one response variable at a time. Having multiple 
+response variables is refered to as [multivariate](https://en.wikipedia.org/wiki/Multivariate_analysis)
+
+Regression analysis commonly involves finding an estimate these $\beta$'s
+
+## How Big is $n$ and $p$?
+In Genome Wide Association Studies:
+
+- $n \sim 10,000$
+- $p \sim 1,000,000$
+
+Google:
+
+- $>2$ trillion Google searches a year 
+[source](https://searchengineland.com/google-now-handles-2-999-trillion-searches-per-year-250247)
+
+World Data Centre for Climate:
+
+- $6$ petabytes ($10^{15}$) of data 
+[source](https://www.comparebusinessproducts.com/fyi/10-largest-databases-in-the-world)
+
+## Prediction vs Association
+In association we care about how individual covariates relate to the response variable.
+
+Example: how does a lake view affect the selling price of a home?
 
 
+In prediction we do not care about individual covariates, but about how well the overall model 
+classifies or predicts. It can be a black box. 
+
+Example: given a home, what do we expect its selling price to be?
+
+
+## Overfitting
+
+
+## Underfitting
+
+
+## Bias - Variance Tradeoff
+
+
+## High Dimensionality ($p >> n$)
+Any covariate can be rewritten as a combination of the others.
+
+## Shrinkage Methods
+Shrinkage methods penalize large $\|\beta\|$ to reduce variance,
+by turning the least squares optimization problem into a constrained optimization problem.
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/L1_and_L2_balls.svg/900px-L1_and_L2_balls.svg.png)
+
+## Principal Components
+Uses the eigenvalues and eigenvectors of the covariates to rewrite
+a set of 
