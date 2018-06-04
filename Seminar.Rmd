@@ -1,5 +1,5 @@
 ---
-title: "Genome Wide Association Study Seminar"
+title: "Regression Analysis & GWAS Seminar"
 author: "Riley Ashton"
 date: '2018-05-16'
 output: ioslides_presentation
@@ -8,26 +8,40 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(knitr)
+library(rmarkdown)
 library(tibble)
 library(ggplot2); theme_set(theme_minimal())
 library(dplyr)
 library(knitr)
 library(purrr)
+library(shiny)
 ```
-## Genome Wide Association Studies
-How are SNPs and cofounding factors related to traits like diseases, blood pressure, etc.
+
+# Regression Analysis and Linear Regression
 
 ## Regression Analysis
 - A set of statistical processes for estimating relationships amoung variables
-- Example: how income is related to race, education, geographic location, etc
-- Example: how unemployment in related to economic growth (Okun's law) 
-- Example: how force needed to compress a spring is related to distance (Hooke's law)
 
+## Example 1: Okun's Law
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Okun%27s_Law_2016.svg/720px-Okun%27s_Law_2016.svg.png)
+
+## Example 2: Hooke's Law
+![](https://msstud2014.files.wordpress.com/2014/11/hooke3.jpg)
+
+## Example 3: Default Risk Based on Credit Card Balance
+![](http://uc-r.github.io/public/images/analytics/logistic_regression/plot2-1.png)
+
+## Example 4: Airports Vornoi Diagram
+```{r, out.width="500px"}
+knitr::include_graphics("https://www.jasondavies.com/maps/voronoi/airports/full.png")
+```
 
 ## Simple Linear Regression Intuition
 Use a line to determine the relationship between a single covariate/predictor
 and a single response. Out of all possible lines, the best choice is the line 
-that minimizes the distance between observations and itself.
+that minimizes the distance between all observations and itself.
+![](http://www.shmula.com/wp-content/uploads/2006/09/regression-analysis-demand-planning.jpg)
 
 ## Simple Linear Regression Example
 ```{r simple_regression}
@@ -122,63 +136,104 @@ renderPlot({
 ```
 
 
-## Multivariable Model (1/2)
+## Multivariable Linear Model (1/2)
 We allow multiple covariates/predictors and the model becomes
 
-$$Y = X \beta$$
+$$Y = X \beta + \epsilon$$
 Where:
 
 - $Y$ is a vector of length $n \times 1$,
 - $X$ is a matrix of size $n \times (p+1)$
+- $\epsilon$ is the error
 - $\beta$ is a vector of length $(p+1)$
 - $n$ is the number of observations
-- $p$ is the number of predictors
+- $p$ is the number of covariates/predictors
 
-## Multivariable Model (2/2)
+
+
+## Multivariable Linear Model (2/2)
 We still only focus on one response variable at a time. Having multiple 
 response variables is refered to as [multivariate](https://en.wikipedia.org/wiki/Multivariate_analysis)
 
+If the response variable is categorical, it is referred to as [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression)
+
 Regression analysis commonly involves finding an estimate these $\beta$'s
 
-## How Big is $n$ and $p$?
-In Genome Wide Association Studies:
+## Visualizing 2 Covariate Linear Model
+![](http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.4.pdf)
 
-- $n \sim 10,000$
-- $p \sim 1,000,000$
+## Example 4: House Price
+```{r, out.width="600px"}
+knitr::include_graphics("http://blog.rocapal.org/wp-content/uploads/2012/04/multi-linear-regression-2.png")
+```
 
-Google:
+## Example 5: Fuel Economy vs Horsepower
+![](http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.8.pdf)
 
-- $>2$ trillion Google searches a year 
-[source](https://searchengineland.com/google-now-handles-2-999-trillion-searches-per-year-250247)
-
-World Data Centre for Climate:
-
-- $6$ petabytes ($10^{15}$) of data 
-[source](https://www.comparebusinessproducts.com/fyi/10-largest-databases-in-the-world)
 
 ## Prediction vs Association
+### Association
 In association we care about how individual covariates relate to the response variable.
+The ability to interpret the model is prioritized.
 
 Example: how does a lake view affect the selling price of a home?
 
-
+### Prediction
 In prediction we do not care about individual covariates, but about how well the overall model 
 classifies or predicts. It can be a black box. 
 
 Example: given a home, what do we expect its selling price to be?
 
 
-## Overfitting
+
+## High Dimensionality $(p >> n)$
+Problems
+
+- Any covariate can be rewritten as a combination of the others.
+- We cannot fit a model with all the covariates.
 
 
-## Underfitting
+
+# Model Selection
+
+## Texas Sharpshooter Falacy
+Imagine that you are driving down a country road in Texas. 
+You see a barn that has six targets painted on it, 
+and a bullet hole at the very center of each target. 
+“Yes sir,” says the owner of the barn, “I never miss.” 
+“That’s right,” says his spouse, “there ain’t a man in the 
+state of Texas who’s more accurate with a paint brush.”
+
+from:
+John V. Guttag. Introduction to Computation and Programming Using Python
+
+
+## Generalization
+We want our models to preform well on independent test data,
+ie data not used to build the model.
+
+To avoid the Texas Sharpshooter Falacy, we cannot use 
+the same data to test our model that we used to build our model.
+
+Two common solutions include partitioning data into training and testing,
+and k-fold cross validation.
+
+##
+![](http://www.codeproject.com/KB/AI/1146582/validation.PNG)
+
+## Overfitting - Underfitting
+Including too many "noise" covariates" will produce a bad model.
+
+Ignoring important covariates will also produce a bad model.
+
+![](https://4.bp.blogspot.com/-dM4Iae3kVsQ/Wlt28eEHHiI/AAAAAAAACPg/X0dIT2a6RMwdEFUO44fQVX9HXakraYBagCLcBGAs/s1600/img1.png)
 
 
 ## Bias - Variance Tradeoff
+TODO
 
 
-## High Dimensionality ($p >> n$)
-Any covariate can be rewritten as a combination of the others.
+
 
 ## Shrinkage Methods
 Shrinkage methods penalize large $\|\beta\|$ to reduce variance,
@@ -186,5 +241,68 @@ by turning the least squares optimization problem into a constrained optimizatio
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/L1_and_L2_balls.svg/900px-L1_and_L2_balls.svg.png)
 
 ## Principal Components
-Uses the eigenvalues and eigenvectors of the covariates to rewrite
-a set of 
+Uses the eigenvalues of the $p$ covariates to rewrite
+the covariates as a set of $m \leq p$ vectors that are a linear combination of the
+original covariates. 
+![](http://www.sthda.com/sthda/RDoc/figure/factor-analysis/principal-component-analysis-basics-scatter-plot-data-mining-1.png)
+
+
+# Genome Wide Association Studies
+
+## Genome Wide Association Studies
+
+- Observational study
+- Covariates are single nucleotide polymorphisms (SNPs)
+- Response variable is a trait
+- Examples of traits include presence of a disease, blood pressure and height
+
+## Manhattan Plots
+```{r, out.width="750px"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/1/12/Manhattan_Plot.png")
+```
+
+##
+```{r, out.width="750px"}
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/5/58/GWAS_Disease_allele_effects.png")
+```
+
+## How Big is $n$ and $p$?
+In Genome Wide Association Studies:
+
+- $n \sim 10,000$
+- $p \sim 1,000,000$
+
+Therefore $p >> n$
+
+## 1973 UC Berkley Gender Bias (1/2)
+
+|       | Applicants | Admitted |
+|-------|------------|----------|
+| Men   | 8442       | 44%      |
+| Women | 4321       | 35%      |
+
+
+## 1973 UC Berkley Gender Bias (2/2)
+Breaking down the data by the 85 individual departments there was actually a "small but statistically significant bias in favor of women"
+[Wikipedia](https://en.wikipedia.org/wiki/Simpson's_paradox#UC_Berkeley_gender_bias)
+[Original Paper](https://homepage.stat.uiowa.edu/~mbognar/1030/Bickel-Berkeley.pdf)
+
+## Simpson's Paradox
+A trend appears in groups of data, but dissapears or reverses when the groups are combined.
+![](https://upload.wikimedia.org/wikipedia/commons/4/47/Simpson%27s_paradox_continuous.svg)
+
+
+## Population Stratification
+There may be systematic differences in allele frequencies between subpopulations,
+a common example is ancestry.
+
+This is an important factor to consider in GWAS.
+
+## Further Resources
+
+- [McMaster Stats 3A03](https://www.math.mcmaster.ca/index.php/undergraduate-studies/undergraduate-courses/63-/level-3/1537-stats-3a03-fall-2017.html)
+- [Introduction to Statistical Learning](http://www-bcf.usc.edu/~gareth/ISL/)
+- [Elements of Statistical Learning](https://web.stanford.edu/~hastie/ElemStatLearn/)
+
+
+
