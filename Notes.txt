@@ -1,0 +1,47 @@
+##################################
+# Example Multivariable Regression
+##################################
+income = occupation + education + experience + age
+
+##########################
+# Examples of Interactions
+##########################
+• Recessive Traits if X1, X2 are covariates and Y is disease
+• Different slopes: occupation and experience as predictors for income
+
+####################
+# Texas Sharpshooter
+####################
+Imagine that you are driving down a country road in Texas. 
+You see a barn that has six targets painted on it, 
+and a bullet hole at the very center of each target. 
+“Yes sir,” says the owner of the barn, “I never miss.” 
+“That’s right,” says his spouse, “there ain’t a man in the 
+state of Texas who’s more accurate with a paint brush.”
+
+from:
+John V. Guttag. Introduction to Computation and Programming Using Python
+
+############################
+# Texas Sharpshooter Example
+############################
+1992 Swedish health study on powerlines and poor health effects.
+The researchers surveyed everyone living within 300 meters of high-voltage 
+power lines over a 25-year period and looked for statistically significant 
+increases in rates of over 800 ailments.
+
+The study found that the incidence of childhood leukemia was four 
+times higher among those who lived closest to the power lines, 
+and it spurred calls to action by the Swedish government
+
+The problem with the conclusion, however, was that the number of 
+potential ailments, i.e. over 800, was so large that it created 
+a high probability that at least one ailment would exhibit the 
+appearance of a statistically significant difference by chance 
+alone; i.e. the multiple comparisons problem. 
+
+Subsequent studies failed to show any links between power lines 
+and childhood leukemia, neither in causation nor even in correlation
+
+from:
+https://en.wikipedia.org/wiki/Texas_sharpshooter_fallacy#Examples
