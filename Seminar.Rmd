@@ -29,6 +29,9 @@ library(shiny)
 ## Example 2: Hooke's Law
 ![](https://msstud2014.files.wordpress.com/2014/11/hooke3.jpg)
 
+## Classification
+- Identifying which category a new observation belongs to
+
 ## Example 3: Default Risk Based on Credit Card Balance
 ![](http://uc-r.github.io/public/images/analytics/logistic_regression/plot2-1.png)
 
@@ -151,13 +154,7 @@ Where:
 
 
 
-## Multivariable Linear Model (2/2)
-We still only focus on one response variable at a time. Having multiple 
-response variables is refered to as [multivariate](https://en.wikipedia.org/wiki/Multivariate_analysis)
 
-If the response variable is categorical, it is referred to as [logistic regression](https://en.wikipedia.org/wiki/Logistic_regression)
-
-Regression analysis commonly involves finding an estimate these $\beta$'s
 
 ## Visualizing 2 Covariate Linear Model
 ![](http://www-bcf.usc.edu/~gareth/ISL/Chapter3/3.4.pdf)
@@ -200,7 +197,7 @@ Problems
 
 
 
-# Regression Considerations
+# Considerations
 
 ## Texas Sharpshooter Falacy
 ![](https://vivifychangecatalyst.files.wordpress.com/2016/04/texas.jpg)
@@ -210,7 +207,7 @@ Problems
 
 ## Generalization
 We want our models to preform well on independent test data,
-ie data not used to build the model.
+not just on the  data not used to build the model.
 
 We cannot use the same data to test our model that we used to build our model.
 
@@ -221,7 +218,7 @@ and k-fold cross validation.
 ![](http://www.codeproject.com/KB/AI/1146582/validation.PNG)
 
 ## Overfitting - Underfitting
-Including too many "noise" covariates" will produce a bad model.
+Including too many "noise" covariates will produce a bad model.
 
 Ignoring important covariates will also produce a bad model.
 
@@ -234,16 +231,17 @@ Ignoring important covariates will also produce a bad model.
 
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/e5e01509ca06e85039e69a64de77561ecb7c50c0)
 
+## Shrinkage Methods
+Shrinkage methods penalize large $\|\beta\|$ to reduce variance,
+by turning the least squares optimization problem into a constrained optimization problem.
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/L1_and_L2_balls.svg/900px-L1_and_L2_balls.svg.png)
+
+
 # Variable Selection
 
 ## Stepwise Selection
 ![](https://upload.wikimedia.org/wikipedia/en/0/07/Stepwise.jpg)
 
-
-## Shrinkage Methods
-Shrinkage methods penalize large $\|\beta\|$ to reduce variance,
-by turning the least squares optimization problem into a constrained optimization problem.
-![](https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/L1_and_L2_balls.svg/900px-L1_and_L2_balls.svg.png)
 
 ## Principal Components
 Uses the eigenvalues of the $p$ covariates to rewrite
